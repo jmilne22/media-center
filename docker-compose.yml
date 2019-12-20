@@ -1,0 +1,69 @@
+version: '3'
+services:
+  transmission:
+    container_name: transmission
+    restart: unless-stopped
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    depends_on:
+      - sonarr
+    environment:
+      - TZ=Europe/Bucharest
+      - TR_IDLE_SEEDING_LIMIT_ENABLED=true
+      - TR_IDLE_SEEDING_LIMIT=600
+      - TR_RATIO_LIMIT_ENABLED=true
+      - TR_RATIO_LIMIT=4
+      - TR_DOWNLOAD_DIR=/downloads
+      - TR_INCOMPLETE_DIR_ENABLED=false
+      - TR_RENAME_PARTIAL_FILES=true
+      - TR_DHT_ENABLED=false
+      - TR_PEX_ENABLED=false
+      - USERID=1000
+      - GROUPID=1000
+    volumes:
+      - ~/Videos/media-center/transmission:/var/lib/transmission-daemon/info/
+      - ~/Downloads/torrents:/downloads/
+    networks:
+      - mediacenter
+    hostname: transmission
+    image: dperson/transmission
+
+  sonarr:
+    container_name: sonarr
+    restart: unless-stopped
+    ports: 
+      - 8989:8989
+    volumes:
+      - ~/Videos/media-center/sonarr:/config/
+      - ~/Downloads/torrents:/downloads/
+      - ~/Downloads/torrents/tv:/tv/
+    environment:
+      - PUID=1000
+      - PGID=150
+      - TZ=Europe/Athens
+    networks:
+      - mediacenter
+    image: linuxserver/sonarr:preview
+  
+  jackett:
+    container_name: jacket
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ~/Videos/media-center/jackett:/config/
+      - ~/Downloads/torrents:/downloads/
+    ports:
+      - 9117:9117
+    networks:
+      - mediacenter
+    hostname: jackett
+    image: linuxserver/jackett
+
+networks:
+  mediacenter:
+    driver: "bridge"

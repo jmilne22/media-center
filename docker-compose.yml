@@ -63,6 +63,28 @@ services:
       - mediacenter
     hostname: jackett
     image: linuxserver/jackett
+  
+  plex:
+    container_name: plex
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+    volumes:
+      - ~/Videos/media-center/plex:/config/
+      - ~/Downloads/torrents/tv:/tv/
+      - ~/Downloads/torrents/movies:/movies/
+    ports:
+      - 32400:32400
+      - 32400:32400/udp
+      - 32469:32469
+      - 32469:32469/udp
+      - 1900:1900/udp
+    networks: 
+      - mediacenter
+    hostname: plex
+    image: linuxserver/plex
 
 networks:
   mediacenter:
